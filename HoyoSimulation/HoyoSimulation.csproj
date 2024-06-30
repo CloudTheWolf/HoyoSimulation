@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+	  <ImplicitUsings>enable</ImplicitUsings>
+	  <Nullable>disable</Nullable>
+	  <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+	  <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+	  <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CloudTheWolf.DSharpPlus.Scaffolding.Data" Version="2.1.0" />
+    <PackageReference Include="CloudTheWolf.DSharpPlus.Scaffolding.Shared" Version="2.2.0.1" />
+    <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="13.9.1" />
+    <PackageReference Include="Magick.NET.Core" Version="13.9.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+	 <ItemGroup>
+		 <RuntimeHostConfigurationOption Include="System.Drawing.EnableUnixSupport" Value="true" />
+	 </ItemGroup>
+	 
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<OutputPath>C:\bot\4.4.4\Plugins\HoyoSim</OutputPath>
+		<PlatformTarget>AnyCPU</PlatformTarget>
+    </PropertyGroup>
+	
+
+</Project>
