@@ -34,6 +34,9 @@ namespace HoyoSimulation
             Options.MySqlUsername = applicationConfig.GetValue<string>("SQL:Username");
             Options.MySqlPassword = applicationConfig.GetValue<string>("SQL:Password");
             Options.MySqlDatabase = applicationConfig.GetValue<string>("SQL:Database");
+            Options.WarpBackground = applicationConfig.GetValue<string>("Warp:Background");
+            Options.FiveStarMax = applicationConfig.GetValue<int>("Warp.FiveStarMax");
+            Options.FourStarMax = applicationConfig.GetValue<int>("Warp.FourStarMax");
         }
 
         private void RegisterCommands(IBot bot)

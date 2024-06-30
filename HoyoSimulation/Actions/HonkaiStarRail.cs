@@ -146,14 +146,14 @@ namespace HoyoSimulation.Actions
         private static JToken DoWarp(bool is_event, bool is_character, bool no_three_star)
         {            
             var random = new Random();
-            var randomNumber = random.Next(0, no_three_star ? 146 : 1000);
+            var randomNumber = random.Next(0, no_three_star ? Options.FourStarMax : 1000);
             JToken item;
 
-            if (randomNumber <= 6)
+            if (randomNumber <= Options.FiveStarMax)
             {
                 item = _dr.GetItemFromDatabase(5,"character");                
             }
-            else if (randomNumber <= 146)
+            else if (randomNumber <= Options.FourStarMax)
             {
                 item = _dr.GetItemFromDatabase(4, "character");
             }
