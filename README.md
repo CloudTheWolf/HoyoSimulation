@@ -2,9 +2,18 @@
 
 This is a Discord Bot to allow members to simulate Warps / Pulls from Hoyoverse games in your Discord Server.
 
-Currently it only supports Character Warps for Honkai Star Rail, however I will eventually add Genshin, HI3 and ZZZ items.
+Currently it only supports Character and Light Cone Warps for Honkai Star Rail, however I will eventually add Genshin, HI3 and ZZZ items.
 
-# Requirements
+## Planned Features
+ - "Special" Pulls 
+ - Improved Inventory System
+ - Admin Interface to manage items, etc
+ - Server Specific Settings
+ 
+## TODO
+ - Make Shardable (Support over 100 Servers)
+
+## Requirements
 
  - MySql or (MariaDB)
  - [CloudTheWolf.DSharpPlus.Scaffolding](https://github.com/CloudTheWolf/CloudTheWolf.DSharpPlus.Scaffolding) - (This will run the actual bot as a SystemD Service. Docker is not currently supported)

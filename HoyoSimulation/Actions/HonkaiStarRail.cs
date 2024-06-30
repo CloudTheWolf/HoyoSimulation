@@ -143,6 +143,133 @@ namespace HoyoSimulation.Actions
             
         }
 
+        [SlashCommand(name: "WeaponWarp", description: "Pull from the Weapon Event Banner", false)]
+        public async Task WeaponWarp(InteractionContext ctx, [Option("type", "Type of warp, (1 or 10)")] string warps_str = "1")
+        {
+            if (!Directory.Exists("./temp"))
+            {
+                Directory.CreateDirectory("./temp");
+            }
+
+            var max_warps = int.Parse(warps_str);
+            ctx.DeferAsync();
+            if (max_warps != 1 && max_warps != 10)
+            {
+                var errorEmbed = new DiscordEmbedBuilder
+                {
+                    Title = "Invalid Pull Type",
+                    Color = DiscordColor.Red,
+                    Description = $"Pull Type {max_warps} is not valid, please select 1 or 10"
+                }.WithAuthor("Pom-Pom", iconUrl: "https://static.wikia.nocookie.net/houkai-star-rail/images/d/dc/NPC_Pom-Pom_Icon.png/revision/latest/scale-to-width-down/50");
+                await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(errorEmbed.Build()));
+                return;
+            }
+
+            var cost = 160 * max_warps;
+            var player_bank = _dr.GetPlayerBank(ctx.Member.Id);
+            if (player_bank < cost)
+            {
+                var errorEmbed = new DiscordEmbedBuilder
+                {
+                    Title = $"Not Enough Jades",
+                    Color = DiscordColor.Red,
+                    Description = $"You can't afford a {max_warps}-pull"
+                }.WithAuthor("Pom-Pom", iconUrl: "https://static.wikia.nocookie.net/houkai-star-rail/images/d/dc/NPC_Pom-Pom_Icon.png/revision/latest/scale-to-width-down/50");
+                await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(errorEmbed.Build()));
+                return;
+            }
+
+
+            int warps = 0;
+            var items = new List<JToken>();
+            int three_star_count = 0;
+            int four_start_count = 0;
+            int five_star_count = 0;
+            while (warps != max_warps)
+            {
+                var item = DoWarp(true, false, three_star_count == 9);
+                if (item["rank"].ToString() == "5")
+                {
+                    ++five_star_count;
+                }
+                else if (item["rank"].ToString() == "4")
+                {
+                    ++four_start_count;
+                }
+                else
+                {
+                    ++three_star_count;
+                }
+                items.Add(item);
+                Main.Logger.LogInformation("");
+                warps++;
+            }
+
+            var banner_img = await MakeWarpBanner(items);
+
+            var rand = new Random();
+            var banner_path = $"./temp/{ctx.Member.Id}_{rand.Next(5458, 15458)}.png";
+            banner_img.Write(banner_path);
+
+            var banner = new FileStream(banner_path, FileMode.Open, FileAccess.Read);
+
+            DiscordColor color;
+
+            if (five_star_count > 0)
+            {
+                color = DiscordColor.Gold;
+            }
+            else if (four_start_count > 0)
+            {
+                color = DiscordColor.Purple;
+            }
+            else
+            {
+                color = DiscordColor.Cyan;
+            }
+
+            var embed = new DiscordEmbedBuilder
+            {
+                Title = "The Astral Express Has Arived",
+                Color = color
+            }.WithAuthor("Pom-Pom", iconUrl: "https://static.wikia.nocookie.net/houkai-star-rail/images/d/dc/NPC_Pom-Pom_Icon.png/revision/latest/scale-to-width-down/50"); ;
+            JArray dbRecord = new JArray();
+            foreach (var item in items)
+            {
+                var stars = "";
+                switch (item["rank"].ToString())
+                {
+                    case "5":
+                        stars = "✪✪✪✪✪";
+                        break;
+                    case "4":
+                        stars = "✪✪✪✪";
+                        break;
+                    default:
+                        stars = "✪✪✪";
+                        break;
+                }
+                embed.AddField("Item", $"[{stars}]{item["name"]}", true);
+                dbRecord.Add(new JObject
+                {
+                    { "item", item["id"].ToObject<int>() },
+                    { "player", ctx.Member.Id},
+                    { "name_suffix","" }
+
+                });
+            }
+
+            var items_json = JsonConvert.SerializeObject(dbRecord);
+            _dr.AddToInventory(ctx.Member.Id, cost, items_json);
+            await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddFile(banner).AddEmbed(embed.Build()));
+
+            banner.Dispose();
+            File.Delete(banner_path);
+
+
+        }
+
+
         private static JToken DoWarp(bool is_event, bool is_character, bool no_three_star)
         {            
             var random = new Random();
@@ -151,15 +278,15 @@ namespace HoyoSimulation.Actions
 
             if (randomNumber <= Options.FiveStarMax)
             {
-                item = _dr.GetItemFromDatabase(5,"character");                
+                item = _dr.GetItemFromDatabase(5, is_character ? "character" : "weapon");                
             }
             else if (randomNumber <= Options.FourStarMax)
             {
-                item = _dr.GetItemFromDatabase(4, "character");
+                item = _dr.GetItemFromDatabase(4, is_character ? "character" : "weapon");
             }
             else
             {
-                item = _dr.GetItemFromDatabase(3, "character");
+                item = _dr.GetItemFromDatabase(3, is_character ? "character" : "weapon");
             }
             return item;
         }
