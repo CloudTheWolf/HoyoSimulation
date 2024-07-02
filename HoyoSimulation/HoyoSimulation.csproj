@@ -7,12 +7,12 @@
 	  <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
 	  <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 	  <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
-	  <Title>HoyoSim Plugin for CLoudTheWolf.DSharpPlus.Scaffolding Project</Title>
+	  <Title>HoyoSim Plugin for CloudTheWolf.DSharpPlus.Scaffolding Project</Title>
 	  <Company>CloudTheWolf</Company>
 	  <Authors>CloudTheWolf</Authors>
 	  <Version>$(VersionPrefix)</Version>
-	  <AssemblyVersion>1.0.0.1</AssemblyVersion>
-	  <FileVersion>1.0.0.1</FileVersion>
+	  <AssemblyVersion>1.0.1</AssemblyVersion>
+	  <FileVersion>1.0.1</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
