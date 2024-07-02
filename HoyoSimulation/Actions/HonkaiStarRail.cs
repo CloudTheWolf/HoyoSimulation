@@ -141,7 +141,7 @@ namespace HoyoSimulation.Actions
                         break;
                 }
                 var suffix = AddSuffix(item);
-                embed.AddField("Item", $"[{stars}]{item["name"]}", true);
+                embed.AddField("Item", $"[{stars}]{item["name"]}{suffix}", true);
                 dbRecord.Add(new JObject
                 {
                     { "item", item["id"].ToObject<int>() },
