@@ -309,7 +309,7 @@ namespace HoyoSimulation.Actions
             if (item["name"].ToString() == "Sparkle") return variant == 0 ? " [Fully Red Mask]" : " [Fully White Mask]";
             if (item["name"].ToString() == "Tingyun" && variant == 0) return " [Phantylia the Undying]";
             if (item["name"].ToString() == "March 7th (Preservation)" && variant == 0) return " [Frozen]";
-            if ((item["name"].ToString().StartsWith("Stelle") || item["name"].ToString().StartsWith("Stelle")) && variant == 0) return " [Emanator Of Trashcans]";
+            if ((item["name"].ToString().StartsWith("Stelle") || item["name"].ToString().StartsWith("Caelus")) && variant == 0) return " [Emanator Of Trashcans]";
             return " [Secret Sparkle]";
         }
 
