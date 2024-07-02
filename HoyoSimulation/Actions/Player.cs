@@ -21,8 +21,8 @@ namespace HoyoSimulation.Actions
         [SlashCommand(name:"inventory", description:"Check your Inventory",false)]
         public async Task CharacterWarp(InteractionContext ctx)
         {            
-            ctx.DeferAsync(ephemeral: true);
-            var bank = _dr.GetPlayerBank(ctx.Member.Id);
+            _ = ctx.DeferAsync(ephemeral: true);
+            var player = _dr.GetPlayerData(ctx.Member.Id);
 
             var items = _dr.GetPlayerItems(ctx.Member.Id);
 
@@ -30,7 +30,7 @@ namespace HoyoSimulation.Actions
             {
                 Title = "Your Inventory"
             };
-            embed.AddField("Bank", $"<:Item_Stellar_Jade:1256938540369969202> {bank}");
+            embed.AddField("Bank", $"<:Item_Stellar_Jade:1256938540369969202> {player.stellar_gems}");
 
             var field_count = 1;
             var extra = 0;

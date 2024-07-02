@@ -25,6 +25,7 @@ namespace HoyoSimulation
             RegisterCommands(bot);
             bot.Client.MessageCreated += MessageEvents.OnMessageCreated;
             Logger.LogInformation("Ready to warp");
+            bot.Client.GuildDownloadCompleted += GuildEvents.OnDownloadCompleted;
         }
 
         private void LoadConfig(IConfigurationRoot applicationConfig)

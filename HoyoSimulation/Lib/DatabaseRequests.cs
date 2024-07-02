@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using CloudTheWolf.DSharpPlus.Scaffolding.Data;
 using CloudTheWolf.DSharpPlus.Scaffolding.Logging;
+using HoyoSimulation.Models;
 using Microsoft.Extensions.Logging;
 using MySqlConnector;
 using Newtonsoft.Json.Linq;
@@ -37,19 +38,32 @@ namespace HoyoSimulation.Lib
             _sda.Request($"CALL UpdatePlayerInventory({player}, {cost}, '{items_json}');", DbLogger);
         }
 
-        internal JToken GetItemFromDatabase(int rank, string type)
+        internal JToken GetItemFromDatabase(int rank, string type, bool must_be_event_item = false)
         {
-            var type_request = rank != 5 ? "" : $"type = '{type}' and"; // Only filter on warp type for 5-stars 
+            var type_request = rank != 5 ? "" : $"(type = '{type}' or type = 'special') AND";
+            if(must_be_event_item)
+            {
+                type_request = $"(type = '{type}' AND event_boosted = 1) AND";
+            }
             var result = _sda.Request($"select * from items where {type_request} pack != 0 and `rank` = {rank} order by RAND() LIMIT 1;", DbLogger);
             return JArray.Parse(result)[0];
         }
 
-        internal int GetPlayerBank(ulong player)
+        internal PlayerModel GetPlayerData(ulong player)
         {
             var result = _sda.Request($"SELECT * FROM `players` WHERE id = {player}",DbLogger);
             var json = JArray.Parse(result);
-            if (json == null || json.Count == 0) return 0;
-            return json[0]["stellar_gems"].ToObject<int>();
+            if (json == null || json.Count == 0) return null;
+            return new PlayerModel()
+            {
+                id = ulong.Parse(json[0]["id"].ToString()),
+                stellar_gems = int.Parse(json[0]["stellar_gems"].ToString()),
+                last_reward = DateTime.Parse(json[0]["last_reward"].ToString()),
+                warps_since_five_star = int.Parse(json[0]["warps_since_five_star"].ToString()),
+                warps_since_event_character = int.Parse(json[0]["warps_since_event_character"].ToString()),
+                warps_since_event_weapon = int.Parse(json[0]["warps_since_event_weapon"].ToString()),
+            };            
+            
         }
 
         internal JArray GetPlayerItems(ulong player)
@@ -61,6 +75,12 @@ namespace HoyoSimulation.Lib
         internal void IssueReward(ulong player, int reward)
         {
             _sda.Request($"CALL UpdatePlayerGems({player}, {reward});",DbLogger);
+        }
+
+        internal void UpdatePlayerWarps(ulong id, int total_warps, int event_warps, string warp_banner)
+        {
+            var event_field = $"warps_since_event_{warp_banner.ToLower()}";
+            _sda.Request($"UPDATE `players` SET `warps_since_five_star` = '{total_warps}', `{event_field}` = '{event_warps}' WHERE (`id` = '{id}');",DbLogger);
         }
     }
 }

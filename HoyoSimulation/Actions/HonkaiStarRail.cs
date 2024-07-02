@@ -57,8 +57,14 @@ namespace HoyoSimulation.Actions
             }
 
             var cost = 160 * max_warps;
-            var player_bank = _dr.GetPlayerBank(ctx.Member.Id);
-            if (player_bank < cost)
+            var player = _dr.GetPlayerData(ctx.Member.Id);
+
+
+            ;
+                        
+           
+
+            if (player.stellar_gems < cost)
             {
                 var errorEmbed = new DiscordEmbedBuilder
                 {
@@ -76,20 +82,28 @@ namespace HoyoSimulation.Actions
             int three_star_count = 0;
             int four_start_count = 0;
             int five_star_count = 0;
+            var total_warps = player.warps_since_five_star;
+            var event_warps = (warp_banner == "weapon" ? player.warps_since_event_weapon : player.warps_since_event_character);
             while (warps != max_warps)
             {
-                var item = DoWarp(true, (warp_banner.ToLower() == "character") , three_star_count == 9);
+                var item = DoWarp(true, (warp_banner.ToLower() == "character") , three_star_count == 9,total_warps,event_warps);
                 if (item["rank"].ToString() == "5")
                 {
                     ++five_star_count;
+                    if (int.Parse(item["event_boosted"].ToString()) == 1) event_warps = 0;
+                    total_warps = 0;
                 }
                 else if (item["rank"].ToString() == "4")
                 {
                     ++four_start_count;
+                    ++total_warps;
+                    ++event_warps;
                 }
                 else
                 {
                     ++three_star_count;
+                    ++total_warps;
+                    ++event_warps;
                 }
                 items.Add(item);
                 Main.Logger.LogInformation("");
@@ -153,6 +167,7 @@ namespace HoyoSimulation.Actions
 
             var items_json = JsonConvert.SerializeObject(dbRecord);
             _dr.AddToInventory(ctx.Member.Id, cost, items_json);
+            _dr.UpdatePlayerWarps(ctx.Member.Id, total_warps, event_warps, warp_banner);
             await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddFile(banner).AddEmbed(embed.Build()));
 
             banner.Dispose();
@@ -168,15 +183,15 @@ namespace HoyoSimulation.Actions
         /// <param name="is_character"></param>
         /// <param name="no_three_star"></param>
         /// <returns></returns>
-        private static JToken DoWarp(bool is_event, bool is_character, bool no_three_star)
+        private static JToken DoWarp(bool is_event, bool is_character, bool no_three_star, int warps_since_five_star ,int warps_since_event_item)
         {            
             var random = new Random();
             var randomNumber = random.Next(0, no_three_star ? Options.FourStarMax : 1000);
             JToken item;
 
-            if (randomNumber <= Options.FiveStarMax)
+            if (randomNumber <= Options.FiveStarMax || warps_since_five_star >= 100 || warps_since_event_item >= 200)
             {
-                item = _dr.GetItemFromDatabase(5, is_character ? "character" : "weapon");                
+                item = _dr.GetItemFromDatabase(5, is_character ? "character" : "weapon", warps_since_event_item == 200);                
             }
             else if (randomNumber <= Options.FourStarMax)
             {
