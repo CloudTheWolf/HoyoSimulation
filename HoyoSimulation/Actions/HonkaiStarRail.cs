@@ -248,7 +248,7 @@ namespace HoyoSimulation.Actions
             }
             catch (Exception ex)
             {
-                
+                Logger.Log.LogError(new EventId(501,"ImageMagick Error"),ex,ex.Message);
                 throw;
             }
         }
