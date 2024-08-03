@@ -16,8 +16,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CloudTheWolf.DSharpPlus.Scaffolding.Data" Version="3.0.0.8" />
-    <PackageReference Include="CloudTheWolf.DSharpPlus.Scaffolding.Shared" Version="3.0.0.12-beta" />
+    <PackageReference Include="CloudTheWolf.DSharpPlus.Scaffolding.Data" Version="3.0.0.4" />
+    <PackageReference Include="CloudTheWolf.DSharpPlus.Scaffolding.Shared" Version="3.0.0.8-beta" />
     <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="13.10.0" />
     <PackageReference Include="Magick.NET.Core" Version="13.10.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
@@ -26,9 +26,15 @@
 	 <ItemGroup>
 		 <RuntimeHostConfigurationOption Include="System.Drawing.EnableUnixSupport" Value="true" />
 	 </ItemGroup>
+
+	 <ItemGroup>
+	   <Folder Include="Actions\NewFolder\" />
+	 </ItemGroup>
 	 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-		<OutputPath>C:\bot\5.0.0\Plugins\HoyoSimulation</OutputPath>
+		<OutputPath>C:\bot\5.0.0\Plugins\HoyoSim</OutputPath>
 		<PlatformTarget>AnyCPU</PlatformTarget>
     </PropertyGroup>
+	
+
 </Project>

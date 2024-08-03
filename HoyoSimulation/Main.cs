@@ -1,10 +1,15 @@
-﻿using CloudTheWolf.DSharpPlus.Scaffolding.Logging;
+﻿using CloudTheWolf.DSharpPlus.Scaffolding.Data;
+using Serilog.Core;
+using Serilog;
 using CloudTheWolf.DSharpPlus.Scaffolding.Shared.Interfaces;
 using DSharpPlus;
 using HoyoSimulation.Actions;
 using HoyoSimulation.Events;
+using HoyoSimulation.Objects;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using ILogger = Serilog.ILogger;
+using CloudTheWolf.DSharpPlus.Scaffolding.Logging;
 
 namespace HoyoSimulation
 {
@@ -16,25 +21,46 @@ namespace HoyoSimulation
 
         public int Version => 1;
 
-        public static ILogger<Logger> Logger;
+        
 
-        public void InitPlugin(IBot bot, ILogger<Logger> logger, DiscordConfiguration discordConfiguration, IConfigurationRoot applicationConfig)
+        public void InitPlugin(IBot bot, ILogger logger, DiscordConfiguration discordConfiguration, IConfigurationRoot applicationConfig)
         {
-            Logger = logger;
+            Logger.Initialize();
+            LoadDatabase(applicationConfig);
             LoadConfig(applicationConfig);
             RegisterCommands(bot);
             bot.Client.MessageCreated += MessageEvents.OnMessageCreated;
-            Logger.LogInformation("Ready to warp");
+            Logger.Log.LogInformation("We're Ready");
             bot.Client.GuildDownloadCompleted += GuildEvents.OnDownloadCompleted;
+
+            //TODO: Wait for Command Appending before moving to the new ClientBuilder Method 
+            //bot.ClientBuilder.ConfigureEventHandlers(
+            //    b => b.HandleMessageCreated(async (c, a) =>
+            //        {
+            //            await MessageEvents.OnMessageCreated(c, a);
+            //        })
+            //        .HandleGuildDownloadCompleted(async (c, e) =>
+            //        {
+            //            await GuildEvents.OnDownloadCompleted(c, e);
+            //        })
+            //);
         }
 
+        /// <summary>
+        /// Create a Database Object using the details in the Application Config
+        /// </summary>
+        /// <param name="applicationConfig"></param>
+        private void LoadDatabase(IConfigurationRoot applicationConfig)
+        {
+            DatabaseObject.Database = DatabaseFactory.CreateDatabase(applicationConfig);
+        }
+        /// <summary>
+        /// Load out Bot Config
+        /// </summary>
+        /// <param name="applicationConfig"></param>
         private void LoadConfig(IConfigurationRoot applicationConfig)
         {
-            Options.MySqlHost = applicationConfig.GetValue<string>("SQL:Host");
-            Options.MySqlPort = applicationConfig.GetValue<int>("SQL:Port");
-            Options.MySqlUsername = applicationConfig.GetValue<string>("SQL:Username");
-            Options.MySqlPassword = applicationConfig.GetValue<string>("SQL:Password");
-            Options.MySqlDatabase = applicationConfig.GetValue<string>("SQL:Database");
+            //TODO: Move these settings to the Database and allow for Per-Guild settings
             Options.WarpBackground = applicationConfig.GetValue<string>("Warp:Background");
             Options.FiveStarMax = applicationConfig.GetValue<int>("Warp:FiveStarMax");
             Options.FourStarMax = applicationConfig.GetValue<int>("Warp:FourStarMax");
@@ -42,11 +68,14 @@ namespace HoyoSimulation
 
         private void RegisterCommands(IBot bot)
         {
-            bot.SlashCommandsExt.RegisterCommands<HonkaiStarRail>();
-            Logger.LogInformation(Name + ": Registered {0}!", nameof(HonkaiStarRail));
+            Logger.Log.LogInformation("{0}: Starting Command Registration!", Name);
 
-            bot.SlashCommandsExt.RegisterCommands<Player>();
-            Logger.LogInformation(Name + ": Registered {0}!", nameof(Player));
+            bot.Commands.AddCommands(typeof(HonkaiStarRail));
+            Logger.Log.LogInformation("{0}: Registered {1} Commands!", Name, nameof(HonkaiStarRail));
+
+            bot.Commands.AddCommands(typeof(Player));
+            Logger.Log.LogInformation("{0}: Registered {1} Commands!", Name, nameof(Player));
+
         }
     }
 }

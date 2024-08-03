@@ -1,49 +1,38 @@
-﻿using DSharpPlus.SlashCommands;
+﻿using System.ComponentModel;
 using DSharpPlus.Entities;
 using Newtonsoft.Json.Linq;
 using Microsoft.Extensions.Logging;
 using HoyoSimulation.Lib;
-using System.Net;
-using System.Drawing;
-using System.Drawing.Imaging;
+using DSharpPlus.Commands;
+using DSharpPlus.Commands.ContextChecks;
+using DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
+using HoyoSimulation.Actions.Providers;
 using Newtonsoft.Json;
 using ImageMagick;
+using Serilog;
 
 namespace HoyoSimulation.Actions
 {
-    [SlashCommandGroup(name: "honkaistartail", "Honkai Star Rail Commands", false)]
-    internal class HonkaiStarRail : ApplicationCommandModule
+    
+    [Command("honkaistarrail"),Description("\"Honkai Star Rail Commands"), RequirePermissions(botPermissions: DiscordPermissions.None, userPermissions: DiscordPermissions.UseApplicationCommands)]
+    internal class HonkaiStarRail
     {
-        private static DatabaseRequests _dr = new DatabaseRequests(Main.Logger);
+        private static DatabaseRequests _dr = new DatabaseRequests();
 
         public HonkaiStarRail() {
-            _dr = new DatabaseRequests(Main.Logger);
-        }
-        
-        [Obsolete]
-        [SlashCommand(name:"CharacterWarp", description:"Pull from the Character Event Banner",false)]
-        public async Task CharacterWarp(InteractionContext ctx, [Option("type","Type of warp, (1 or 10)")] string warps_str = "1")
-        {
-            await ctx.CreateResponseAsync("This command is no longer used, please use `/honkaistartail warp`", ephemeral:true);
+            _dr = new DatabaseRequests();
         }
 
-        [Obsolete]
-        [SlashCommand(name: "WeaponWarp", description: "Pull from the Weapon Event Banner", false)]
-        public async Task WeaponWarp(InteractionContext ctx, [Option("type", "Type of warp, (1 or 10)")] string warps_str = "1")
-        {
-            await ctx.CreateResponseAsync("This command is no longer used, please use `/honkaistartail warp`", ephemeral: true);
-        }
-
-        [SlashCommand(name: "Warp", description: "Pull from the Weapon Event Banner", false)]
-        public async Task Warp(InteractionContext ctx, [Option("banner","Banner to pull from (Weapon or Character)")] string warp_banner = "character", [Option("type", "Type of warp, (1 - 10)")] string warps_str = "1")
+        [Command(name: "warp"),Description("Pull from the Weapon Event Banner"),RequirePermissions(botPermissions: DiscordPermissions.None, userPermissions: DiscordPermissions.UseApplicationCommands)]
+        public async Task Warp(CommandContext ctx, [Parameter("banner"), Description("Which Banner will you use?"),SlashChoiceProvider<BannerTypeProvider>] string warp_banner = "character", [Parameter("amount"),Description("How Many Pulls will you do"),SlashChoiceProvider<PullSizeProvider>] int numberOfPulls = 1)
         {
             if (!Directory.Exists("./temp"))
             {
                 Directory.CreateDirectory("./temp");
             }
 
-            var max_warps = int.Parse(warps_str);
-            _ = ctx.DeferAsync();
+            var max_warps = numberOfPulls;
+            _ = ctx.DeferResponseAsync();
             if (warp_banner.ToLower() != "character" && warp_banner != "weapon"  && (max_warps > 1 || max_warps < 10))
             {
                 var errorEmbed = new DiscordEmbedBuilder
@@ -58,11 +47,6 @@ namespace HoyoSimulation.Actions
 
             var cost = 160 * max_warps;
             var player = _dr.GetPlayerData(ctx.Member.Id);
-
-
-            ;
-                        
-           
 
             if (player.stellar_gems < cost)
             {
@@ -106,7 +90,6 @@ namespace HoyoSimulation.Actions
                     ++event_warps;
                 }
                 items.Add(item);
-                Main.Logger.LogInformation("");
                 warps++;
             }
 
@@ -265,7 +248,7 @@ namespace HoyoSimulation.Actions
             }
             catch (Exception ex)
             {
-                Main.Logger.LogError(ex.Message);
+                
                 throw;
             }
         }

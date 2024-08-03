@@ -12,11 +12,11 @@ namespace HoyoSimulation.Events
 {
     internal class MessageEvents
     {
-        private static DatabaseRequests _dr = new DatabaseRequests(Main.Logger);
-        internal static async Task OnMessageCreated(DiscordClient client, MessageCreateEventArgs args)
+        private static DatabaseRequests _dr = new DatabaseRequests();
+        internal static async Task OnMessageCreated(DiscordClient client, MessageCreatedEventArgs messageCreatedEventArgs)
         {
 
-            if (args.Author.IsBot) return;
+            if (messageCreatedEventArgs.Author.IsBot) return;
 
 
             var rewards = new List<int>
@@ -26,13 +26,15 @@ namespace HoyoSimulation.Events
                 50,
                 100,
                 160,
+                200,
                 300,
+                400,
                 600,
                 1600
             };
 
             var rand = new Random();           
-            _dr.IssueReward(args.Author.Id, rewards[rand.Next(0, 7)]);
+            _dr.IssueReward(messageCreatedEventArgs.Author.Id, rewards[rand.Next(0, rewards.Count - 1)]);
             
 
         }

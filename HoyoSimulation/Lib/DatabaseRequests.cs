@@ -1,41 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CloudTheWolf.DSharpPlus.Scaffolding.Data;
-using CloudTheWolf.DSharpPlus.Scaffolding.Logging;
+﻿using CloudTheWolf.DSharpPlus.Scaffolding.Data;
+using Serilog;
 using HoyoSimulation.Models;
-using Microsoft.Extensions.Logging;
-using MySqlConnector;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace HoyoSimulation.Lib
 {
     internal class DatabaseRequests
     {
-        public static ILogger<Logger> DbLogger;
-        private static MySqlDataAccess _sda = new();
+        private readonly IDatabase _sda;
 
-        public DatabaseRequests(ILogger<Logger> logger)
+        public DatabaseRequests()
         {
-            DbLogger = logger;
-            MySqlConnectionStringBuilder connStringBuilder = new MySqlConnectionStringBuilder
-            {
-                Server = Options.MySqlHost,
-                Port = (uint)Options.MySqlPort,
-                UserID = Options.MySqlUsername,
-                Password = Options.MySqlPassword,
-                Database = Options.MySqlDatabase
-            };
-            _sda.LoadConnectionString(connStringBuilder.ToString(), DbLogger);
+            _sda = Objects.DatabaseObject.Database;
         }
 
         internal void AddToInventory(ulong player, int cost, string items_json)
         {
-            
-            _sda.Request($"CALL UpdatePlayerInventory({player}, {cost}, '{items_json}');", DbLogger);
+            _sda.Execute($"CALL UpdatePlayerInventory({player}, {cost}, '{items_json}');");
         }
 
         internal JToken GetItemFromDatabase(int rank, string type, bool must_be_event_item = false)
@@ -45,42 +27,44 @@ namespace HoyoSimulation.Lib
             {
                 type_request = $"(type = '{type}' AND event_boosted = 1) AND";
             }
-            var result = _sda.Request($"select * from items where {type_request} pack != 0 and `rank` = {rank} order by RAND() LIMIT 1;", DbLogger);
-            return JArray.Parse(result)[0];
+            var result = _sda.Query($"select * from items where {type_request} pack != 0 and `rank` = {rank} order by RAND() LIMIT 1;");
+            var item = JsonConvert.SerializeObject(result);
+            return JArray.Parse(item)[0];
         }
 
-        internal PlayerModel GetPlayerData(ulong player)
+        internal PlayerModel GetPlayerData(ulong memberId)
         {
-            var result = _sda.Request($"SELECT * FROM `players` WHERE id = {player}",DbLogger);
-            var json = JArray.Parse(result);
-            if (json == null || json.Count == 0) return null;
-            return new PlayerModel()
+            var result = _sda.Query($"SELECT * FROM `players` WHERE id = {memberId}");
+            var playerDaya = result.First();
+            var player = new PlayerModel()
             {
-                id = ulong.Parse(json[0]["id"].ToString()),
-                stellar_gems = int.Parse(json[0]["stellar_gems"].ToString()),
-                last_reward = DateTime.Parse(json[0]["last_reward"].ToString()),
-                warps_since_five_star = int.Parse(json[0]["warps_since_five_star"].ToString()),
-                warps_since_event_character = int.Parse(json[0]["warps_since_event_character"].ToString()),
-                warps_since_event_weapon = int.Parse(json[0]["warps_since_event_weapon"].ToString()),
-            };            
-            
+                id = ulong.Parse(playerDaya.id.ToString()),
+                stellar_gems = int.Parse(playerDaya.stellar_gems.ToString()),
+                last_reward = DateTime.Parse(playerDaya.last_reward.ToString()),
+                warps_since_five_star = int.Parse(playerDaya.warps_since_five_star.ToString()),
+                warps_since_event_character = int.Parse(playerDaya.warps_since_event_character.ToString()),
+                warps_since_event_weapon = int.Parse(playerDaya.warps_since_event_weapon.ToString()),
+            };
+
+            return player;
+
         }
 
-        internal JArray GetPlayerItems(ulong player)
+        internal IEnumerable<dynamic> GetPlayerItems(ulong memberId)
         {
-            var result = _sda.Request($"CALL GetPlayerInventory({player});", DbLogger);
-            return JArray.Parse(result);            
+            var result = _sda.Query($"CALL GetPlayerInventory({memberId});");
+            return result;            
         }
 
         internal void IssueReward(ulong player, int reward)
         {
-            _sda.Request($"CALL UpdatePlayerGems({player}, {reward});",DbLogger);
+            _sda.Execute($"CALL UpdatePlayerGems({player}, {reward});");
         }
 
         internal void UpdatePlayerWarps(ulong id, int total_warps, int event_warps, string warp_banner)
         {
             var event_field = $"warps_since_event_{warp_banner.ToLower()}";
-            _sda.Request($"UPDATE `players` SET `warps_since_five_star` = '{total_warps}', `{event_field}` = '{event_warps}' WHERE (`id` = '{id}');",DbLogger);
+            _sda.Execute($"UPDATE `players` SET `warps_since_five_star` = '{total_warps}', `{event_field}` = '{event_warps}' WHERE (`id` = '{id}');");
         }
     }
 }

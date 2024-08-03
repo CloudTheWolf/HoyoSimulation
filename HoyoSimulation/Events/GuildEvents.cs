@@ -15,7 +15,7 @@ namespace HoyoSimulation.Events
         {
             args.Guilds.ToList().ForEach(async guild =>
             {
-                Main.Logger.LogInformation($"In Guild {guild.Value.Name}");
+                Logger.Log.LogInformation($"In Guild {guild.Value.Name}");
             });            
             
         }

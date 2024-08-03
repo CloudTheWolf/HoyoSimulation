@@ -1,34 +1,37 @@
-﻿using DSharpPlus.SlashCommands;
-using DSharpPlus.Entities;
+﻿using DSharpPlus.Entities;
 using Newtonsoft.Json.Linq;
 using Microsoft.Extensions.Logging;
 using HoyoSimulation.Lib;
 using System.Net;
 using System.Drawing;
 using System.Drawing.Imaging;
+using DSharpPlus.Commands.ContextChecks;
+using DSharpPlus.Commands;
+using System.ComponentModel;
+using DSharpPlus.Commands.Processors.SlashCommands;
 
 namespace HoyoSimulation.Actions
 {
-    [SlashCommandGroup(name: "player", "Player Commands", false)]
-    internal class Player : ApplicationCommandModule
+    internal class Player
     {
-        private static DatabaseRequests _dr = new DatabaseRequests(Main.Logger);
+        private static DatabaseRequests _dr = new();
 
         public Player() {
-            _dr = new DatabaseRequests(Main.Logger);
+            _dr = new DatabaseRequests();
         }
 
-        [SlashCommand(name:"inventory", description:"Check your Inventory",false)]
-        public async Task CharacterWarp(InteractionContext ctx)
+        [Command(name: "inventory"), Description("Check your Inventory"), RequirePermissions(botPermissions: DiscordPermissions.None, userPermissions: DiscordPermissions.UseApplicationCommands),SlashCommandTypes(DiscordApplicationCommandType.SlashCommand)]
+        public async Task CharacterWarp(SlashCommandContext ctx)
         {            
-            _ = ctx.DeferAsync(ephemeral: true);
+            _ = ctx.DeferResponseAsync(true);
+            
             var player = _dr.GetPlayerData(ctx.Member.Id);
 
             var items = _dr.GetPlayerItems(ctx.Member.Id);
 
             var embed = new DiscordEmbedBuilder
             {
-                Title = "Your Inventory"
+                Title = $"Inventory For {ctx.Member.DisplayName} ({ctx.Member.Username})"
             };
             embed.AddField("Bank", $"<:Item_Stellar_Jade:1256938540369969202> {player.stellar_gems}");
 
@@ -41,7 +44,7 @@ namespace HoyoSimulation.Actions
                     ++extra;
                     continue;
                 }
-                embed.AddField($"{item["full_item_name"]}", $"x{item["item_count"]}", true);
+                embed.AddField($"{item.full_item_name}", $"x{item.item_count}", true);
                 ++field_count;
             }
 
