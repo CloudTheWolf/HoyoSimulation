@@ -7,6 +7,7 @@ using DSharpPlus.Commands;
 using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
 using HoyoSimulation.Actions.Providers;
+using HoyoSimulation.Events;
 using Newtonsoft.Json;
 using ImageMagick;
 using Serilog;
@@ -14,7 +15,7 @@ using Serilog;
 namespace HoyoSimulation.Actions
 {
     
-    [Command("honkaistarrail"),Description("\"Honkai Star Rail Commands"), RequirePermissions(botPermissions: DiscordPermissions.None, userPermissions: DiscordPermissions.UseApplicationCommands)]
+    [Command("honkaistarrail"),Description("Honkai Star Rail Commands"), RequirePermissions(botPermissions: DiscordPermissions.None, userPermissions: DiscordPermissions.UseApplicationCommands)]
     internal class HonkaiStarRail
     {
         private static DatabaseRequests _dr = new DatabaseRequests();
@@ -26,6 +27,7 @@ namespace HoyoSimulation.Actions
         [Command(name: "warp"),Description("Pull from the Weapon Event Banner"),RequirePermissions(botPermissions: DiscordPermissions.None, userPermissions: DiscordPermissions.UseApplicationCommands)]
         public async Task Warp(CommandContext ctx, [Parameter("banner"), Description("Which Banner will you use?"),SlashChoiceProvider<BannerTypeProvider>] string warp_banner = "character", [Parameter("amount"),Description("How Many Pulls will you do"),SlashChoiceProvider<PullSizeProvider>] int numberOfPulls = 1)
         {
+            bool updateStats = true;
             if (!Directory.Exists("./temp"))
             {
                 Directory.CreateDirectory("./temp");
@@ -82,6 +84,12 @@ namespace HoyoSimulation.Actions
                     ++four_start_count;
                     ++total_warps;
                     ++event_warps;
+                    if (updateStats)
+                    {
+                        GuildEvents.SetStatus(ctx
+                            .Client); // We should find a better way to do this, but it's not like they'll have a 4-star all the time
+                        updateStats = false;
+                    }
                 }
                 else
                 {
@@ -194,7 +202,7 @@ namespace HoyoSimulation.Actions
         /// <returns></returns>
         private async Task<MagickImage> MakeWarpBanner(List<JToken> items)
         {
-            string background = "https://cloudthewolf.com/warp_bg.png"; // Move to config later
+            string background = Options.WarpBackground;
             
             //207 x 277 max size
             (int x, int y)[] positions = new (int x, int y)[]

@@ -40,6 +40,19 @@ namespace HoyoSimulation
         /// Rate for 4-Star Drops
         /// </summary>
         public static int FourStarMax { get; set; }
+        /// <summary>
+        /// Log Prefix
+        /// </summary>
+        public static string LogPrefix { get; set; }
 
+        /// <summary>
+        /// Base URL for profiles
+        /// </summary>
+        public static string ProfileUrlBase { get; set; }
+
+        /// <summary>
+        /// Counter for updating status
+        /// </summary>
+        public static int StatusCounter = 0;
     }
 }

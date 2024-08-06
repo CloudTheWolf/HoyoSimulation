@@ -3,6 +3,8 @@ using Serilog;
 using HoyoSimulation.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using HoyoSimulation.Actions;
+using SurrealDb.Net.Models;
 
 namespace HoyoSimulation.Lib
 {
@@ -56,15 +58,32 @@ namespace HoyoSimulation.Lib
             return result;            
         }
 
-        internal void IssueReward(ulong player, int reward)
+        internal void IssueReward(ulong player, int reward, string playerName, string playerAvatar)
         {
-            _sda.Execute($"CALL UpdatePlayerGems({player}, {reward});");
+            _sda.Execute($"CALL UpdatePlayerGems({player}, {reward},'{playerName.Replace("'","''")}','{playerAvatar}');");
         }
 
         internal void UpdatePlayerWarps(ulong id, int total_warps, int event_warps, string warp_banner)
         {
             var event_field = $"warps_since_event_{warp_banner.ToLower()}";
             _sda.Execute($"UPDATE `players` SET `warps_since_five_star` = '{total_warps}', `{event_field}` = '{event_warps}' WHERE (`id` = '{id}');");
+        }
+
+        public void ImportGuild(ulong guildId, string guildName)
+        {
+            _sda.Execute($"CALL ImportGuild({guildId}, '{guildName.Replace("'","''")}');");
+        }
+
+        internal int GetGuilds()
+        {
+            var result = _sda.Query("SELECT * FROM guilds");
+            return result.Count();
+        }
+
+        internal int GetPlayers()
+        {
+            var result = _sda.Query("SELECT * FROM players");
+            return result.Count();
         }
     }
 }

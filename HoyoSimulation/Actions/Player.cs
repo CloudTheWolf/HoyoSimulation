@@ -12,6 +12,7 @@ using DSharpPlus.Commands.Processors.SlashCommands;
 
 namespace HoyoSimulation.Actions
 {
+    [Command("player"), Description("Player related commands"), RequirePermissions(botPermissions: DiscordPermissions.None, userPermissions: DiscordPermissions.UseApplicationCommands)]
     internal class Player
     {
         private static DatabaseRequests _dr = new();
@@ -20,10 +21,10 @@ namespace HoyoSimulation.Actions
             _dr = new DatabaseRequests();
         }
 
-        [Command(name: "inventory"), Description("Check your Inventory"), RequirePermissions(botPermissions: DiscordPermissions.None, userPermissions: DiscordPermissions.UseApplicationCommands),SlashCommandTypes(DiscordApplicationCommandType.SlashCommand)]
+        [Command(name: "inventory"), Description("Check your Inventory"), RequirePermissions(botPermissions: DiscordPermissions.None,  userPermissions: DiscordPermissions.UseApplicationCommands),SlashCommandTypes(DiscordApplicationCommandType.SlashCommand)]
         public async Task CharacterWarp(SlashCommandContext ctx)
         {            
-            _ = ctx.DeferResponseAsync(true);
+            _ = ctx.DeferResponseAsync(false);
             
             var player = _dr.GetPlayerData(ctx.Member.Id);
 
@@ -34,12 +35,13 @@ namespace HoyoSimulation.Actions
                 Title = $"Inventory For {ctx.Member.DisplayName} ({ctx.Member.Username})"
             };
             embed.AddField("Bank", $"<:Item_Stellar_Jade:1256938540369969202> {player.stellar_gems}");
+            
 
             var field_count = 1;
             var extra = 0;
             foreach(var item in items)
             {
-                if(field_count == 21)
+                if(field_count == 5)
                 {
                     ++extra;
                     continue;
@@ -53,7 +55,10 @@ namespace HoyoSimulation.Actions
                 embed.AddField("And", $"{extra} more unique items!", true);
             }
 
-            await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed.Build()));
+            await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed.Build()).AddComponents(new DiscordComponent[]
+            {
+                new DiscordLinkButtonComponent($"{Options.ProfileUrlBase}{ctx.Member.Id}","View Full Profile")
+            }));
         }
 
         
