@@ -36,7 +36,7 @@ namespace HoyoSimulation
             bot.Client.MessageCreated += MessageEvents.OnMessageCreated;
             Logger.Log.LogInformation("We're Ready");
             bot.Client.GuildDownloadCompleted += GuildEvents.OnDownloadCompleted;
-            bot.Client.Heartbeated += HeartbeatEvents.UpdateStatusOnHeartBeat;
+            //bot.Client.Heartbeated += HeartbeatEvents.UpdateStatusOnHeartBeat;
 
             //TODO: Wait for Command Appending before moving to the new ClientBuilder Method 
             //bot.ClientBuilder.ConfigureEventHandlers(
@@ -49,6 +49,8 @@ namespace HoyoSimulation
             //            await GuildEvents.OnDownloadCompleted(c, e);
             //        })
             //);
+
+            
         }
 
         /// <summary>
