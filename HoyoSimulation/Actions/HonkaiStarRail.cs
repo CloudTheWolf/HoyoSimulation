@@ -24,7 +24,7 @@ namespace HoyoSimulation.Actions
             _dr = new DatabaseRequests();
         }
 
-        [Command(name: "warp"),Description("Pull from the Weapon Event Banner"),RequirePermissions(botPermissions: DiscordPermissions.None, userPermissions: DiscordPermissions.UseApplicationCommands)]
+        [Command(name: "warp"),Description("Pull from a Banner"),RequirePermissions(botPermissions: DiscordPermissions.None, userPermissions: DiscordPermissions.UseApplicationCommands)]
         public async Task Warp(CommandContext ctx, [Parameter("banner"), Description("Which Banner will you use?"),SlashChoiceProvider<BannerTypeProvider>] string warp_banner = "character", [Parameter("amount"),Description("How Many Pulls will you do"),SlashChoiceProvider<PullSizeProvider>] int numberOfPulls = 1)
         {
             bool updateStats = true;
@@ -68,34 +68,47 @@ namespace HoyoSimulation.Actions
             int three_star_count = 0;
             int four_start_count = 0;
             int five_star_count = 0;
+            int six_star_count = 0;
             var total_warps = player.warps_since_five_star;
             var event_warps = (warp_banner == "weapon" ? player.warps_since_event_weapon : player.warps_since_event_character);
             while (warps != max_warps)
             {
                 var item = DoWarp(true, (warp_banner.ToLower() == "character") , three_star_count == 9,total_warps,event_warps);
-                if (item["rank"].ToString() == "5")
+                switch (item["rank"].ToString())
                 {
-                    ++five_star_count;
-                    if (int.Parse(item["event_boosted"].ToString()) == 1) event_warps = 0;
-                    total_warps = 0;
-                }
-                else if (item["rank"].ToString() == "4")
-                {
-                    ++four_start_count;
-                    ++total_warps;
-                    ++event_warps;
-                    if (updateStats)
+                    case "6":
+                        { 
+                        ++six_star_count;
+                        ++total_warps;
+                        ++event_warps;
+                        break;
+                        }
+                    case "5":
                     {
-                        GuildEvents.SetStatus(ctx
-                            .Client); // We should find a better way to do this, but it's not like they'll have a 4-star all the time
-                        updateStats = false;
+                        ++five_star_count;
+                        if (int.Parse(item["event_boosted"].ToString()) == 1) event_warps = 0;
+                        total_warps = 0;
+                        break;
                     }
-                }
-                else
-                {
-                    ++three_star_count;
-                    ++total_warps;
-                    ++event_warps;
+                    case "4":
+                    {
+                        ++four_start_count;
+                        ++total_warps;
+                        ++event_warps;
+                        if (updateStats)
+                        {
+                            GuildEvents.SetStatus(ctx
+                                .Client); // We should find a better way to do this, but it's not like they'll have a 4-star all the time
+                            updateStats = false;
+                        }
+
+                        break;
+                    }
+                    default:
+                        ++three_star_count;
+                        ++total_warps;
+                        ++event_warps;
+                        break;
                 }
                 items.Add(item);
                 warps++;
@@ -110,8 +123,11 @@ namespace HoyoSimulation.Actions
             var banner = new FileStream(banner_path, FileMode.Open, FileAccess.Read);
 
             DiscordColor color;
-
-            if (five_star_count > 0)
+            if (six_star_count > 0)
+            {
+                color = DiscordColor.Orange;
+            }
+            else if (five_star_count > 0)
             {
                 color = DiscordColor.Gold;
             }
@@ -135,6 +151,9 @@ namespace HoyoSimulation.Actions
                 var stars = "";
                 switch (item["rank"].ToString())
                 {
+                    case "6":
+                        stars = "✪✪✪✪✪✪";
+                        break;
                     case "5":
                         stars = "✪✪✪✪✪";
                         break;
@@ -205,8 +224,8 @@ namespace HoyoSimulation.Actions
             string background = Options.WarpBackground;
             
             //207 x 277 max size
-            (int x, int y)[] positions = new (int x, int y)[]
-            {
+            (int x, int y)[] positions =
+            [
                 (407, 62),
                 (631, 62),
                 (856, 62),
@@ -218,10 +237,10 @@ namespace HoyoSimulation.Actions
                 (856, 392),
                 (1081, 392),
                 (1306, 392)
-            };
+            ];
             // Download the main image
             var mainImage = await DownloadImageFromUrlAsync(background);
-            int pos = 0;         
+            var pos = 0;         
 
             foreach (var item in items)
             {
