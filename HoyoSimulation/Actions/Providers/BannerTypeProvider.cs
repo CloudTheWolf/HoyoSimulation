@@ -19,4 +19,15 @@ namespace HoyoSimulation.Actions.Providers
 
         public ValueTask<IReadOnlyDictionary<string, object>> ProvideAsync(CommandParameter parameter) => ValueTask.FromResult(bannerType);
     }
+    internal class ZenlessBannerTypeProvider : IChoiceProvider
+    {
+        private static readonly IReadOnlyDictionary<string, object> bannerType = new Dictionary<string, object>
+        {
+            ["Agent Banner"] = "character",
+            ["W-Engine Banner"] = "weapon"
+
+        };
+
+        public ValueTask<IReadOnlyDictionary<string, object>> ProvideAsync(CommandParameter parameter) => ValueTask.FromResult(bannerType);
+    }
 }

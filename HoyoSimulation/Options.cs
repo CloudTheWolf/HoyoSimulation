@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Azure.Core;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -29,9 +30,20 @@ namespace HoyoSimulation
         /// </summary>
         public static string MySqlDatabase { get; set; }
         /// <summary>
-        /// Base image for warps
+        /// Base image for Warps
         /// </summary>
-        public static string WarpBackground { get; set; }
+        public static string HsrWarpBackground { get; set; }
+
+        /// <summary>
+        /// Base image for Genshin Wishes
+        /// </summary>
+        public static string GenshinWarpBackground { get; set; }
+
+        /// <summary>
+        /// Base image for ZZZ Pulls
+        /// </summary>
+        public static string ZenlessWarpBackground { get; set; }
+
         /// <summary>
         /// Rate for 5-Star drops
         /// </summary>
@@ -54,5 +66,9 @@ namespace HoyoSimulation
         /// Counter for updating status
         /// </summary>
         public static int StatusCounter = 0;
+
+        public static bool enableGenshin { get; set; } = false;
+        
+        public static bool enableZenless { get; set; } = false;
     }
 }

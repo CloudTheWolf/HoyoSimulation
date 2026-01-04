@@ -22,14 +22,15 @@ namespace HoyoSimulation.Lib
             _sda.Execute($"CALL UpdatePlayerInventory({player}, {cost}, '{items_json}');");
         }
 
-        internal JToken GetItemFromDatabase(int rank, string type, bool must_be_event_item = false)
+        internal JToken GetItemFromDatabase(int rank, string type, bool must_be_event_item = false,string game="hsr")
         {
             var type_request = rank != 5 ? "" : $"(type = '{type}' or type = 'special') AND";
             if(must_be_event_item)
             {
                 type_request = $"(type = '{type}' AND event_boosted = 1) AND";
             }
-            var result = _sda.Query($"select * from items where {type_request} pack != 0 and `rank` = {rank} order by RAND() LIMIT 1;");
+            Console.WriteLine($"select * from items where {type_request} pack != 0 and `rank` = {rank} and `game` = '{game}' order by RAND() LIMIT 1;");
+            var result = _sda.Query($"select * from items where {type_request} pack != 0 and `rank` = {rank} and `game` = '{game}' order by RAND() LIMIT 1;");
             var item = JsonConvert.SerializeObject(result);
             return JArray.Parse(item)[0];
         }

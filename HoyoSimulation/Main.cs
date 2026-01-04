@@ -68,7 +68,9 @@ namespace HoyoSimulation
         private void LoadConfig(IConfigurationRoot applicationConfig)
         {
             //TODO: Move these settings to the Database and allow for Per-Guild settings
-            Options.WarpBackground = applicationConfig.GetValue<string>("Warp:Background");
+            Options.HsrWarpBackground = applicationConfig.GetValue<string>("Warp:Background");            
+            Options.GenshinWarpBackground = Options.HsrWarpBackground; //applicationConfig.GetValue<string>("Genshin:Warp:Background");
+            Options.ZenlessWarpBackground = Options.HsrWarpBackground; //applicationConfig.GetValue<string>("Zenless:Warp:Background");
             Options.FiveStarMax = applicationConfig.GetValue<int>("Warp:FiveStarMax");
             Options.FourStarMax = applicationConfig.GetValue<int>("Warp:FourStarMax");
             Options.ProfileUrlBase = applicationConfig.GetValue<string>("Warp:ProfileUrl");
@@ -80,6 +82,12 @@ namespace HoyoSimulation
 
             bot.Commands.AddCommands(typeof(HonkaiStarRail));
             Logger.Log.LogInformation("[\u00b1 {0}] Registered {1} Commands!", Name, nameof(HonkaiStarRail));
+
+            bot.Commands.AddCommands(typeof(Zenless));
+            Logger.Log.LogInformation("[\u00b1 {0}] Registered {1} Commands!", Name, nameof(Zenless));
+
+            bot.Commands.AddCommands(typeof(Genshin));
+            Logger.Log.LogInformation("[\u00b1 {0}] Registered {1} Commands!", Name, nameof(Genshin));
 
             bot.Commands.AddCommands(typeof(Player));
             Logger.Log.LogInformation("[\u00b1 {0}] Registered {1} Commands!", Name, nameof(Player));
