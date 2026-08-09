@@ -13,10 +13,10 @@ namespace HoyoSimulation.Events
     internal class MessageEvents
     {
         private static DatabaseRequests _dr = new DatabaseRequests();
-        internal static async Task OnMessageCreated(DiscordClient client, MessageCreatedEventArgs messageCreatedEventArgs)
+        internal static Task OnMessageCreated(DiscordClient client, MessageCreatedEventArgs messageCreatedEventArgs)
         {
             
-            if (messageCreatedEventArgs.Author.IsBot) return;
+            if (messageCreatedEventArgs.Author.IsBot) return Task.CompletedTask;
 
 
             var rewards = new List<int>
@@ -37,6 +37,7 @@ namespace HoyoSimulation.Events
             _dr.IssueReward(messageCreatedEventArgs.Author.Id, rewards[rand.Next(0, rewards.Count - 1)], messageCreatedEventArgs.Author.Username,messageCreatedEventArgs.Author.AvatarUrl);
             _dr.ImportGuild(messageCreatedEventArgs.Guild.Id, messageCreatedEventArgs.Guild.Name);
 
+            return Task.CompletedTask;
         }
     }
 }

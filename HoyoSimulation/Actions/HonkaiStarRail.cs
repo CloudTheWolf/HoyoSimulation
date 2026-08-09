@@ -13,7 +13,7 @@ using Newtonsoft.Json;
 namespace HoyoSimulation.Actions
 {
     
-    [Command("honkaistarrail"),Description("Honkai Star Rail Commands"), RequirePermissions(botPermissions: DiscordPermissions.None, userPermissions: DiscordPermissions.UseApplicationCommands)]
+    [Command("honkaistarrail"), Description("Honkai Star Rail Commands"), RequirePermissions(botPermissions: [], userPermissions: [DiscordPermission.UseApplicationCommands])]
     internal class HonkaiStarRail
     {
         private static DatabaseRequests _dr = new DatabaseRequests();
@@ -22,7 +22,7 @@ namespace HoyoSimulation.Actions
             _dr = new DatabaseRequests();
         }
 
-        [Command(name: "warp"),Description("Pull from a Banner"),RequirePermissions(botPermissions: DiscordPermissions.None, userPermissions: DiscordPermissions.UseApplicationCommands)]
+        [Command(name: "warp"), Description("Pull from a Banner"), RequirePermissions(botPermissions: [], userPermissions: [DiscordPermission.UseApplicationCommands])]
         public async Task Warp(CommandContext ctx, [Parameter("banner"), Description("Which Banner will you use?"),SlashChoiceProvider<BannerTypeProvider>] string warp_banner = "character", [Parameter("amount"),Description("How Many Pulls will you do"),SlashChoiceProvider<PullSizeProvider>] int numberOfPulls = 1)
         {
             bool updateStats = true;
@@ -95,7 +95,7 @@ namespace HoyoSimulation.Actions
                         ++event_warps;
                         if (updateStats)
                         {
-                            GuildEvents.SetStatus(ctx
+                            await GuildEvents.SetStatus(ctx
                                 .Client); // We should find a better way to do this, but it's not like they'll have a 4-star all the time
                             updateStats = false;
                         }

@@ -15,7 +15,7 @@ using Serilog;
 namespace HoyoSimulation.Actions
 {
     
-    [Command("zenless"),Description("Zenless Impact Commands"), RequirePermissions(botPermissions: DiscordPermissions.None, userPermissions: DiscordPermissions.UseApplicationCommands)]
+    [Command("zenless"), Description("Zenless Impact Commands"), RequirePermissions(botPermissions: [], userPermissions: [DiscordPermission.UseApplicationCommands])]
     internal class Zenless
     {
         private static DatabaseRequests _dr = new DatabaseRequests();
@@ -24,7 +24,7 @@ namespace HoyoSimulation.Actions
             _dr = new DatabaseRequests();
         }
 
-        [Command(name: "search"),Description("Pull from a Banner"),RequirePermissions(botPermissions: DiscordPermissions.None, userPermissions: DiscordPermissions.UseApplicationCommands)]
+        [Command(name: "search"), Description("Pull from a Banner"), RequirePermissions(botPermissions: [], userPermissions: [DiscordPermission.UseApplicationCommands])]
         public async Task Warp(CommandContext ctx, [Parameter("banner"), Description("Which Banner will you use?"),SlashChoiceProvider<ZenlessBannerTypeProvider>] string warp_banner = "character", [Parameter("amount"),Description("How Many Pulls will you do"),SlashChoiceProvider<PullSizeProvider>] int numberOfPulls = 1)
         {
             bool updateStats = true;

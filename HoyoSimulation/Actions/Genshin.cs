@@ -16,7 +16,7 @@ using ImageMagick.Drawing;
 namespace HoyoSimulation.Actions
 {
     
-    [Command("genshin"),Description("Genshin Impact Commands"), RequirePermissions(botPermissions: DiscordPermissions.None, userPermissions: DiscordPermissions.UseApplicationCommands)]
+    [Command("genshin"), Description("Genshin Impact Commands"), RequirePermissions(botPermissions: [], userPermissions: [DiscordPermission.UseApplicationCommands])]
     internal class Genshin
     {
         private static DatabaseRequests _dr = new DatabaseRequests();
@@ -25,7 +25,7 @@ namespace HoyoSimulation.Actions
             _dr = new DatabaseRequests();
         }
 
-        [Command(name: "wish"),Description("Pull from a Banner"),RequirePermissions(botPermissions: DiscordPermissions.None, userPermissions: DiscordPermissions.UseApplicationCommands)]
+        [Command(name: "wish"), Description("Pull from a Banner"), RequirePermissions(botPermissions: [], userPermissions: [DiscordPermission.UseApplicationCommands])]
         public async Task Warp(CommandContext ctx, [Parameter("banner"), Description("Which Banner will you use?"),SlashChoiceProvider<BannerTypeProvider>] string warp_banner = "character", [Parameter("amount"),Description("How Many Pulls will you do"),SlashChoiceProvider<PullSizeProvider>] int numberOfPulls = 1)
         {
             bool updateStats = true;

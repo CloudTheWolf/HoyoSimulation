@@ -5,29 +5,30 @@ using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
 using DSharpPlus.Commands.Trees;
+using DSharpPlus.Entities;
 
 namespace HoyoSimulation.Actions.Providers
 {
     internal class BannerTypeProvider : IChoiceProvider
     {
-        private static readonly IReadOnlyDictionary<string, object> bannerType = new Dictionary<string, object>
-        {
-            ["Character Banner"] = "character",
-            ["Weapon Banner"] = "weapon"
+        private static readonly IEnumerable<DiscordApplicationCommandOptionChoice> BannerTypes =
+        [
+            new("Character Banner", "character"),
+            new("Weapon Banner", "weapon")
+        ];
 
-        };
-
-        public ValueTask<IReadOnlyDictionary<string, object>> ProvideAsync(CommandParameter parameter) => ValueTask.FromResult(bannerType);
+        public ValueTask<IEnumerable<DiscordApplicationCommandOptionChoice>> ProvideAsync(
+            CommandParameter parameter) => ValueTask.FromResult(BannerTypes);
     }
     internal class ZenlessBannerTypeProvider : IChoiceProvider
     {
-        private static readonly IReadOnlyDictionary<string, object> bannerType = new Dictionary<string, object>
-        {
-            ["Agent Banner"] = "character",
-            ["W-Engine Banner"] = "weapon"
+        private static readonly IEnumerable<DiscordApplicationCommandOptionChoice> BannerTypes =
+        [
+            new("Agent Banner", "character"),
+            new("W-Engine Banner", "weapon")
+        ];
 
-        };
-
-        public ValueTask<IReadOnlyDictionary<string, object>> ProvideAsync(CommandParameter parameter) => ValueTask.FromResult(bannerType);
+        public ValueTask<IEnumerable<DiscordApplicationCommandOptionChoice>> ProvideAsync(
+            CommandParameter parameter) => ValueTask.FromResult(BannerTypes);
     }
 }

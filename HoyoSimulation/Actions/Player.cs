@@ -12,7 +12,7 @@ using DSharpPlus.Commands.Processors.SlashCommands;
 
 namespace HoyoSimulation.Actions
 {
-    [Command("player"), Description("Player related commands"), RequirePermissions(botPermissions: DiscordPermissions.None, userPermissions: DiscordPermissions.UseApplicationCommands)]
+    [Command("player"), Description("Player related commands"), RequirePermissions(botPermissions: [], userPermissions: [DiscordPermission.UseApplicationCommands])]
     internal class Player
     {
         private static DatabaseRequests _dr = new();
@@ -21,7 +21,7 @@ namespace HoyoSimulation.Actions
             _dr = new DatabaseRequests();
         }
 
-        [Command(name: "inventory"), Description("Check your Inventory"), RequirePermissions(botPermissions: DiscordPermissions.None,  userPermissions: DiscordPermissions.UseApplicationCommands),SlashCommandTypes(DiscordApplicationCommandType.SlashCommand)]
+        [Command(name: "inventory"), Description("Check your Inventory"), RequirePermissions(botPermissions: [], userPermissions: [DiscordPermission.UseApplicationCommands]), SlashCommandTypes(DiscordApplicationCommandType.SlashCommand)]
         public async Task CharacterWarp(SlashCommandContext ctx)
         {            
             _ = ctx.DeferResponseAsync(false);
@@ -55,10 +55,13 @@ namespace HoyoSimulation.Actions
                 embed.AddField("And", $"{extra} more unique items!", true);
             }
 
-            await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed.Build()).AddComponents(new DiscordComponent[]
+            var response = new DiscordWebhookBuilder().AddEmbed(embed.Build());
+            response.AddActionRowComponent(new DiscordButtonComponent[]
             {
-                new DiscordLinkButtonComponent($"{Options.ProfileUrlBase}{ctx.Member.Id}","View Full Profile")
-            }));
+                new DiscordLinkButtonComponent($"{Options.ProfileUrlBase}{ctx.Member.Id}", "View Full Profile")
+            });
+
+            await ctx.EditResponseAsync(response);
         }
 
         

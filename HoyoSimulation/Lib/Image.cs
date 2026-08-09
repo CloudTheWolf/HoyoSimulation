@@ -1,6 +1,5 @@
 ﻿using ImageMagick;
 using ImageMagick.Drawing;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 
 
@@ -8,6 +7,11 @@ namespace HoyoSimulation.Lib
 {
     internal class Image
     {
+        private static readonly string OverlayFontFamily =
+            Environment.GetEnvironmentVariable("HOYOSIM_FONT_FAMILY") is { Length: > 0 } configuredFont
+                ? configuredFont
+                : global::System.OperatingSystem.IsWindows() ? "Impact" : "FreeSans";
+
         /// <summary>
         /// Make the image for the Discord Embed
         /// </summary>
@@ -55,6 +59,18 @@ namespace HoyoSimulation.Lib
 
                 overlay.Density = mainImage.Density;
                 overlay = ResizeImage(overlay, 200, item["name"].ToString());
+                if (overlay.Height > 275) // Outside the box
+                {
+                    double maxHeight = 267.63;
+                    uint newHeight = (uint)Math.Round(maxHeight);
+
+                    uint newWidth = (uint)Math.Round(
+                        overlay.Width * (maxHeight / overlay.Height)
+                    );
+
+                    overlay.FilterType = FilterType.Catrom;
+                    overlay.Resize(newWidth, newHeight);
+                }
                 mainImage.Composite(overlay, x: positions[pos].x, y: positions[pos].y, CompositeOperator.SrcOver);
                 overlay.Dispose();
                 ++pos;
@@ -81,7 +97,7 @@ namespace HoyoSimulation.Lib
             }
             catch (Exception ex)
             {
-                Logger.Log.LogError(new EventId(501, "ImageMagick Error"), ex, ex.Message);
+                PluginLogging.Logger.Error(ex, "ImageMagick failed while downloading {ImageUrl}", url);
                 throw;
             }
         }
@@ -113,7 +129,7 @@ namespace HoyoSimulation.Lib
                 // Draw the text on the overlay
                 new Drawables()
                   .FontPointSize(19)
-                  .Font("Impact", FontStyleType.Italic, FontWeight.Bold, FontStretch.ExtraExpanded)
+                  .Font(OverlayFontFamily, FontStyleType.Italic, FontWeight.Bold, FontStretch.ExtraExpanded)
                   .StrokeColor(MagickColors.Black)
                   .StrokeWidth(1)
                   .FillColor(MagickColors.White)

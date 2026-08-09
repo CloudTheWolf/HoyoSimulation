@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
 	  <ImplicitUsings>enable</ImplicitUsings>
 	  <Nullable>disable</Nullable>
 	  <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
@@ -16,11 +16,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CloudTheWolf.DSharpPlus.Scaffolding.Data" Version="3.0.0.8" />
-    <PackageReference Include="CloudTheWolf.DSharpPlus.Scaffolding.Shared" Version="3.0.0.12-beta" />
-    <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="14.10.1" />
-    <PackageReference Include="Magick.NET.Core" Version="14.10.1" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="CloudTheWolf.DSharpPlus.Scaffolding.Data" Version="3.4.0.1" />
+    <PackageReference Include="CloudTheWolf.DSharpPlus.Scaffolding.Shared" Version="4.0.1-beta" />
+    <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="14.16.0" />
+    <PackageReference Include="Magick.NET.Core" Version="14.16.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
   </ItemGroup>
 
 	 <ItemGroup>
@@ -28,7 +28,7 @@
 	 </ItemGroup>
 	 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-		<OutputPath>C:\bot\5.0.0\Plugins\HoyoSimulation</OutputPath>
+		<OutputPath>C:\bot\5.3.0\Plugins\HoyoSimulation</OutputPath>
 		<PlatformTarget>AnyCPU</PlatformTarget>
     </PropertyGroup>
 </Project>

@@ -7,7 +7,6 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using HoyoSimulation.Lib;
-using Microsoft.Extensions.Logging;
 
 namespace HoyoSimulation.Events
 {
@@ -15,21 +14,28 @@ namespace HoyoSimulation.Events
     {
         internal static async Task OnDownloadCompleted(DiscordClient client, GuildDownloadCompletedEventArgs args)
         {
-            args.Guilds.ToList().ForEach(async guild =>
+            foreach (var guild in args.Guilds)
             {
-                Logger.Log.LogInformation("[± {0}]In Guild {1}", Options.LogPrefix, guild.Value.Name);
-                var _dr = new DatabaseRequests();
-                _dr.ImportGuild(guild.Value.Id, guild.Value.Name);
-            });            
-            SetStatus(client);
+                PluginLogging.Logger.Information(
+                    "Plugin {PluginName} is active in guild {GuildName}",
+                    Options.LogPrefix,
+                    guild.Value.Name);
+                var databaseRequests = new DatabaseRequests();
+                databaseRequests.ImportGuild(guild.Value.Id, guild.Value.Name);
+            }
+
+            await SetStatus(client).ConfigureAwait(false);
         }
 
-        public static async Task SetStatus(DiscordClient client)
+        public static Task SetStatus(DiscordClient client)
         {
-            var _dr = new DatabaseRequests();
-            var players = _dr.GetPlayers();
-            var guilds = _dr.GetGuilds();
-            client.UpdateStatusAsync(new DiscordActivity($"with {players} Trailblazers in {guilds} Guilds", DiscordActivityType.Playing));
+            var databaseRequests = new DatabaseRequests();
+            var players = databaseRequests.GetPlayers();
+            var guilds = databaseRequests.GetGuilds();
+            return client.UpdateStatusAsync(
+                new DiscordActivity(
+                    $"with {players} Trailblazers in {guilds} Guilds",
+                    DiscordActivityType.Playing));
         }
     }
 }
